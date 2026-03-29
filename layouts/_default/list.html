@@ -1,6 +1,54 @@
 {{ define "legacy_main" }}
 <div id="content-sidebar-wrap">
   <div id="content" class="hfeed">
+    {{ if and .Params.archive_year .Params.archive_month }}
+    {{ $year := printf "%v" .Params.archive_year }}
+    {{ $month := printf "%02v" .Params.archive_month }}
+    {{ $monthName := $month }}
+    {{ if eq $month "01" }}{{ $monthName = "January" }}{{ end }}
+    {{ if eq $month "02" }}{{ $monthName = "February" }}{{ end }}
+    {{ if eq $month "03" }}{{ $monthName = "March" }}{{ end }}
+    {{ if eq $month "04" }}{{ $monthName = "April" }}{{ end }}
+    {{ if eq $month "05" }}{{ $monthName = "May" }}{{ end }}
+    {{ if eq $month "06" }}{{ $monthName = "June" }}{{ end }}
+    {{ if eq $month "07" }}{{ $monthName = "July" }}{{ end }}
+    {{ if eq $month "08" }}{{ $monthName = "August" }}{{ end }}
+    {{ if eq $month "09" }}{{ $monthName = "September" }}{{ end }}
+    {{ if eq $month "10" }}{{ $monthName = "October" }}{{ end }}
+    {{ if eq $month "11" }}{{ $monthName = "November" }}{{ end }}
+    {{ if eq $month "12" }}{{ $monthName = "December" }}{{ end }}
+    <div class="breadcrumb">You are here: <a href="/" title="View Home">Home</a> / {{ .Title }}</div>
+    <div class="post page type-page status-publish hentry">
+      <h1 class="entry-title">{{ $monthName }} {{ $year }}</h1>
+    </div>
+    {{ range site.RegularPages.ByDate.Reverse }}
+      {{ if and (eq .Section "posts") (eq (.Date.Format "2006") $year) (eq (.Date.Format "01") $month) }}
+      {{ $imgMatches := findRE `(?is)<img[^>]+src="([^"]+)"[^>]*>` .Content 1 }}
+      {{ $imgSrc := "" }}
+      {{ if gt (len $imgMatches) 0 }}
+        {{ $imgTag := index $imgMatches 0 }}
+        {{ $srcParts := findRE `src="([^"]+)"` $imgTag 1 }}
+        {{ if gt (len $srcParts) 0 }}
+          {{ $imgSrc = replaceRE `^src="([^"]+)"$` `$1` (index $srcParts 0) }}
+        {{ end }}
+      {{ end }}
+      <div class="post hentry">
+        <h2 class="entry-title"><a href="{{ .RelPermalink }}" title="{{ .Title }}" rel="bookmark">{{ .Title }}</a></h2>
+        <div class="post-info"><span class="date published time" title="{{ .Date.Format "2006-01-02T15:04:05-0700" }}">{{ .Date.Format "January 2, 2006" }}</span></div>
+        <div class="entry-content">
+          {{ if $imgSrc }}<a href="{{ .RelPermalink }}" title="{{ .Title }}"><img src="{{ $imgSrc }}" class="alignleft post-image" alt="" decoding="async" loading="lazy" width="150" /></a>{{ end }}
+          <p>{{ .Plain | htmlUnescape | truncate 320 }}</p>
+        </div>
+        <div class="post-meta"><span class="categories">Filed Under:
+          {{ range $index, $cat := (.Params.categories | default (slice)) }}
+            {{ if gt $index 0 }}, {{ end }}
+            {{ if eq $cat "In the News" }}<a href="/category/inthenews/" rel="category tag">{{ $cat }}</a>{{ else if eq $cat "Historian" }}<a href="/category/historian/" rel="category tag">{{ $cat }}</a>{{ else }}{{ $cat }}{{ end }}
+          {{ end }}
+        </span></div>
+      </div>
+      {{ end }}
+    {{ end }}
+    {{ else }}
     <div class="breadcrumb">You are here: <a href="/" title="View Home">Home</a> / {{ .Title }}</div>
     <div class="post page type-page status-publish hentry">
       <h1 class="entry-title">{{ .Title }}</h1>
@@ -15,6 +63,7 @@
         {{ end }}
       </div>
     </div>
+    {{ end }}
   </div>
   {{ partial "legacy/sidebar.html" . }}
 </div>
