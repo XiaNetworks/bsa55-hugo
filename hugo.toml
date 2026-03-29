@@ -1,6 +1,7 @@
 baseURL = "https://bsa55.xianetworks.com/"
 languageCode = "en-us"
 title = "Troop 55"
+timeZone = "America/New_York"
 disableKinds = ["taxonomy", "term", "RSS", "sitemap"]
 
 [markup]
